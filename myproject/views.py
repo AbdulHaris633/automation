@@ -10,8 +10,8 @@ import chromedriver_py  # Automatically manages the ChromeDriver path
 import time
 
 def open_chrome(request):
-    url = request.GET.get('url', 'http://54.221.153.85:8000/plant/productlist/')
-    token = request.GET.get('token',"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1ODUzMzYzLCJpYXQiOjE3MzU4MzUzNjMsImp0aSI6IjRkNWQyZTBjZTljYjRhZTE5OTE5MjcxMzEyNjBkZmFiIiwidXNlcl9pZCI6MTB9.Ezfx2JpbB_ZfH6ESThjDmhEM--5Ojm1RBJY8jUnuwIc")
+    url = request.GET.get('url', '')
+    token = request.GET.get('token',"")
     chrome_options = Options()
     chrome_options.add_argument("--start-maximized")
     chromedriver_path = chromedriver_py.binary_path
