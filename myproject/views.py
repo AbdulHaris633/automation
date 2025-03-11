@@ -6,21 +6,23 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import chromedriver_py  # Automatically manages the ChromeDriver path
-import time
+from webdriver_manager.chrome import ChromeDriverManager
+import time 
 
 def open_chrome(request):
     url = request.GET.get('url', '')
+
     token = request.GET.get('token',"")
+
+    token = request.GET.get('token',"your_token_here")
+  
     chrome_options = Options()
     chrome_options.add_argument("--start-maximized")
-    chromedriver_path = chromedriver_py.binary_path
-    driver = None
+    chrome_options.add_argument("--headless")
+    service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service, options=chrome_options)
 
-    try: 
-        # Setup Chrome WebDriver
-        service = Service(chromedriver_path)
-        driver = webdriver.Chrome(service=service, options=chrome_options)
+    try:
         driver.execute_cdp_cmd("Network.enable", {})
         driver.execute_cdp_cmd("Network.setExtraHTTPHeaders", {
             "headers": {"Authorization": f"Bearer {token}"}
@@ -47,21 +49,20 @@ def open_chrome(request):
             ("attributes", "Sample Data")
         ]
 
-        # Fill fields
         for field_name, value in fields:
             input_field = WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.NAME, field_name))
             )
             input_field.send_keys(value)
 
-        # Select dropdown option
+        # Select from dropdown
         dropdown = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.NAME, "category"))
         )
         select = Select(dropdown)
         select.select_by_visible_text("New cat")
 
-        # Click the button
+        # Click the submit button
         button = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.XPATH, "//button[contains(@class, 'btn-primary') and text()='POST']"))
         )
@@ -69,7 +70,7 @@ def open_chrome(request):
         time.sleep(1)
         driver.execute_script("arguments[0].click();", button)
 
-        time.sleep(5)  # Wait for potential server response after the click
+        time.sleep(5)
         return HttpResponse(f"Opened Chrome, filled the form, and navigated to: {url}")
 
     except Exception as e:
@@ -78,4 +79,4 @@ def open_chrome(request):
     finally:
         if driver:
             time.sleep(5)
-            driver.quit() 
+            driver.quit()
